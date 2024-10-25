@@ -91,10 +91,56 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    # Keep track of steps - is it necessary?
+    steps = 0
+    # Keep track of number of states explored
+    explored = set()
+    
+    # Initialize frontier to just the starting position
+    start = Node(state=source, parent=None, action=None)
+    frontier = StackFrontier()
+    frontier.add(start)
+
     print("source: ", source)
     print("target: ", target)
     print("neighobrs of source: ", neighbors_for_person(source))
     print("neighbors of target: ", neighbors_for_person(target))
+
+    if frontier.contains_state(target):
+            print("The actors are the same person")
+            return []
+    
+    # Keep looping until solution found
+    i = 0
+    while True:
+        print("AKTUELLER SCHLEIFENZAEHLER: ", i)
+        i += 1
+        # If nothing left in frontier, then no path
+        if frontier.empty():
+            raise Exception("no solution")
+        
+        # Choose a node from the frontier
+        node = frontier.remove()
+        print ("node state: ", node.state)
+
+        if node.state == target:
+            # implement reversing the steps/actions
+            print("haha here is the path:")
+            return "hahddda"
+        
+        # Mark node as explored
+        explored.add(node.state)
+
+        for movie_id, person_id in neighbors_for_person(node.state):
+            print("frontier: ", frontier.frontier)
+            if not frontier.contains_state(person_id) and person_id not in explored:
+                child = Node(state=person_id, parent=node, action=movie_id)
+                frontier.add(child)
+
+        
+        
+        
+    
     return None
     
 
