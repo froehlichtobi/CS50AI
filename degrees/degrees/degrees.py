@@ -70,7 +70,7 @@ def main():
         sys.exit("Person not found.")
 
     path = shortest_path(source, target)
-
+    print("path: ", path)
     if path is None:
         print("Not connected.")
     else:
@@ -98,50 +98,45 @@ def shortest_path(source, target):
     
     # Initialize frontier to just the starting position
     start = Node(state=source, parent=None, action=None)
-    frontier = StackFrontier()
+    frontier = QueueFrontier()
     frontier.add(start)
-
-    print("source: ", source)
-    print("target: ", target)
-    print("neighobrs of source: ", neighbors_for_person(source))
-    print("neighbors of target: ", neighbors_for_person(target))
 
     if frontier.contains_state(target):
             print("The actors are the same person")
             return []
     
     # Keep looping until solution found
-    i = 0
     while True:
-        print("AKTUELLER SCHLEIFENZAEHLER: ", i)
-        i += 1
+        
         # If nothing left in frontier, then no path
         if frontier.empty():
-            raise Exception("no solution")
+            return None
         
         # Choose a node from the frontier
         node = frontier.remove()
-        print ("node state: ", node.state)
-
-        if node.state == target:
-            # implement reversing the steps/actions
-            print("haha here is the path:")
-            return "hahddda"
-        
+        steps += 1
+    
         # Mark node as explored
         explored.add(node.state)
 
         for movie_id, person_id in neighbors_for_person(node.state):
-            print("frontier: ", frontier.frontier)
             if not frontier.contains_state(person_id) and person_id not in explored:
                 child = Node(state=person_id, parent=node, action=movie_id)
-                frontier.add(child)
+                
+                if child.state == target:
+                    # implement reversing the steps/actions
+                    solution = []
+                    node = child
+                    print("solution array: ", solution)
+                    #continue until you reach the start node, the only node with no parent
+                    while node.parent is not None:
+                        solution.append((node.action, node.state))
+                        print("solution arrray::: ", solution)
+                        node = node.parent
 
-        
-        
-        
-    
-    return None
+                    solution.reverse()
+                    return solution
+                frontier.add(child)
     
 
 def person_id_for_name(name):
