@@ -118,48 +118,38 @@ def minimax(board):
         return None
 
     if player(board) == X:
-        print("max value action: ", max_value_action(board))
-        return max_value_action(board)
+        best_value = float('-inf')
+        for action in actions(board):
+            value = min_value(result(board, action))
+            if value > best_value:
+                best_value = value
+                best_action = action
     else:
-        print("min value action: ",min_value_action(board))
-        return min_value_action(board)
+        best_value = float('inf')
+        for action in actions(board):
+            value = max_value(result(board, action))
+            if value < best_value:
+                best_value = value
+                best_action = action
+    
+    return best_action
     
 
 def max_value(board):
-
     if terminal(board):
         return utility(board)
     v = float('-inf')
     for action in actions(board):
         v = max(v, min_value(result(board,action)))
+        
     return v
 
 def min_value(board):
     if terminal(board):
         return utility(board)
-    
     v = float('inf')
     for action in actions(board):
         v = min(v, max_value(result(board,action)))
+
     return v
-
-def max_value_action(board):
-    best_action = None
-    highest_value = float('-inf')
-    for action in actions(board):
-        next_value = max_value(result(board,action))
-        if next_value > highest_value:
-            highest_value = next_value
-            best_action = action
-    return best_action
-
-def min_value_action(board):
-    best_action = None
-    highest_value = float('inf')
-    for action in actions(board):
-        next_value = min_value(result(board,action))
-        if next_value < highest_value:
-            highest_value = next_value
-            best_action = action
-    return best_action
 
