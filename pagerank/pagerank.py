@@ -11,7 +11,7 @@ def main():
     if len(sys.argv) != 2:
         sys.exit("Usage: python pagerank.py corpus")
     corpus = crawl(sys.argv[1])
-    
+
     # print("1.html: ")
     # transition_model(corpus, '1.html', DAMPING)
     # print("2.html: ")
@@ -47,10 +47,7 @@ def crawl(directory):
 
     # Only include links to other pages in the corpus
     for filename in pages:
-        pages[filename] = set(
-            link for link in pages[filename]
-            if link in pages
-        )
+        pages[filename] = set(link for link in pages[filename] if link in pages)
 
     return pages
 
@@ -68,15 +65,15 @@ def transition_model(corpus, page, damping_factor):
     probability_any = (1 - damping_factor) / len(corpus)
 
     probability_distribution = {key: probability_any for key in corpus}
-    
+
     # if page has no outgoing links, return probability distribution that chooses randomly among all pages
     if page not in corpus:
         raise ValueError(f"Page '{page}' not found in corpus")
     if not corpus[page]:
         for key in probability_distribution:
-            probability_distribution[key] += damping_factor/len(corpus)
+            probability_distribution[key] += damping_factor / len(corpus)
         return probability_distribution
-    
+
     # With probability damping_factor, the random surfer should randomly choose
     # one of the links from page with equal probability.
     probability = damping_factor / len(corpus[page])
@@ -128,25 +125,33 @@ def iterate_pagerank(corpus, damping_factor):
     pageRanks = {key: 1 / n for key in corpus}
     new_PageRanks = pageRanks.copy()
     max_difference = 0.001
-
+    iterations = 0
     while True:
+        iterations += 1
         for page in corpus:
             pr = (1 - damping_factor) / n
             for p in corpus:
-                if page in corpus[p]: # if there is a page with a link to the page we are currently on
+                if page in corpus[p]:  # if there is a page with a link to the page we are currently on
                     pr += damping_factor * pageRanks[p] / len(corpus[p])
+                if not corpus[p]:
+                    pr += damping_factor * pageRanks[p] / n
             new_PageRanks[page] = pr
 
-        exact_enough = False
+        # Normalise the new page ranks:
+        norm_factor = sum(new_PageRanks.values())
+        new_PageRanks = {page: (rank / norm_factor) for page, rank in new_PageRanks.items()}
+
+        converged = True
         for page in pageRanks:
-            if abs(pageRanks[page] - new_PageRanks[page]) <= max_difference:
-                exact_enough = True
-            else:
-                exact_enough = False
-        if exact_enough:
+            if abs(pageRanks[page] - new_PageRanks[page]) >= max_difference:
+                converged = False
+                break
+
+        if converged:
             break
-        pageRanks = new_PageRanks.copy()
-    
+        else:
+            pageRanks = new_PageRanks.copy()
+    print("iterations: ", iterations)
     return pageRanks
 
 
